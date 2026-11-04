@@ -1,0 +1,12 @@
+# Render Blueprint: New > Blueprint, pick this repo.
+# Render injects $PORT (default 10000); the Dockerfile's gunicorn command binds to it.
+services:
+  - type: web
+    name: mfe-folding-tool
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /
+    autoDeployTrigger: commit

@@ -56,7 +56,13 @@ docker run --rm -p 7860:7860 mfe-tool      # then open http://127.0.0.1:7860
 ```
 
 Built and run locally on an Intel Mac (linux/amd64) and checked against the
-non-Docker run. It has **not** been deployed to any hosting service yet.
+non-Docker run.
+
+`render.yaml` is a Render Blueprint (Docker runtime, free plan, Frankfurt):
+in the Render dashboard choose *New > Blueprint* and select this repository.
+The file's keys follow Render's Blueprint reference; whether the free plan
+accepts the Docker runtime was not stated on the pages I read, so check the
+first deploy.
 Notes from the providers' documentation (read 2026-11-04, not tested by me):
 
 - Hugging Face: Docker Spaces need a paid plan to create (PRO for personal
