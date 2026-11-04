@@ -168,15 +168,20 @@ PAGE = """<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MFE folding (ViennaRNA)</title>
 <style>
- body{font-family:system-ui,sans-serif;max-width:980px;margin:2rem auto;padding:0 1rem;color:#222}
+ :root{--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+ body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.5;max-width:980px;margin:2rem auto;padding:0 1rem;color:#222}
+ select,input,button,textarea{font:inherit;color:inherit}
+ select,input[type=text],input:not([type]){padding:.25rem .4rem;border:1px solid #aaa;border-radius:4px;background:#fff}
+ code{font-family:var(--mono);font-size:.9em;background:#f3f3f3;padding:0 .25em;border-radius:3px}
  .warn{background:#fff4d6;border:1px solid #e0b84c;padding:.7rem 1rem;border-radius:6px}
  .err{background:#fde2e2;border:1px solid #d66;padding:.5rem 1rem;border-radius:6px;margin:.5rem 0}
- textarea{width:100%;height:9rem;font-family:ui-monospace,monospace}
+ textarea{width:100%;height:9rem;font-family:var(--mono);font-size:.9rem;padding:.5rem;border:1px solid #aaa;border-radius:4px;box-sizing:border-box}
  table{border-collapse:collapse;width:100%;margin-top:1rem}
  th,td{border:1px solid #ccc;padding:.3rem .5rem;text-align:left}
- td.m{font-family:ui-monospace,monospace;font-size:.85rem;word-break:break-all}
+ td.m{font-family:var(--mono);font-size:.85rem;word-break:break-all}
  tr.avg td{font-weight:600;background:#f3f3f3}
- label{margin-right:1rem} button{padding:.4rem 1rem}
+ label{margin-right:1rem} button{padding:.4rem 1.1rem;border:1px solid #888;border-radius:4px;background:#f4f4f4;cursor:pointer}
+ button:hover{background:#e8e8e8}
  small{color:#555}
  .figs{display:flex;flex-wrap:wrap;gap:1rem;margin-top:1rem}
  figure{margin:0;border:1px solid #ddd;border-radius:6px;padding:.4rem;text-align:center;width:min(100%,440px)}
