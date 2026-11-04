@@ -10,7 +10,11 @@ algorithm details differ from NUPACK, so free energies will not match NUPACK
 exactly. The difference has **not been quantified yet**. Use this for practice and
 cross-checking, and follow your course instructions for graded values.
 
-![Screenshot: three RNA sequences folded, with table and structure drawings](docs/screenshot.jpg)
+**Live demo:** <https://mfe-folding-tool.onrender.com> (Render free instance: it
+sleeps after 15 minutes without traffic and the first request afterwards can take
+about a minute; open it a little before you need it).
+
+![Screenshot: two RNA sequences folded, with table and structure drawings](docs/screenshot.png)
 
 ## Features
 
@@ -47,7 +51,7 @@ probability ranges). They do not validate the energy values against NUPACK.
 ## Run in Docker / hosting
 
 A `Dockerfile` is included (gunicorn, non-root user, request limits lowered to
-20 sequences of up to 300 nt via `MFE_MAX_SEQS` / `MFE_MAX_LEN`). It listens on
+20 sequences of up to 200 nt via `MFE_MAX_SEQS` / `MFE_MAX_LEN`). It listens on
 `$PORT`, defaulting to 7860.
 
 ```bash
@@ -60,9 +64,8 @@ non-Docker run.
 
 `render.yaml` is a Render Blueprint (Docker runtime, free plan, Frankfurt):
 in the Render dashboard choose *New > Blueprint* and select this repository.
-The file's keys follow Render's Blueprint reference; whether the free plan
-accepts the Docker runtime was not stated on the pages I read, so check the
-first deploy.
+This is how the live demo above is deployed; the free plan accepted the Docker
+runtime and the first build took about a minute.
 Notes from the providers' documentation (read 2026-11-04, not tested by me):
 
 - Hugging Face: Docker Spaces need a paid plan to create (PRO for personal
@@ -76,6 +79,9 @@ Notes from the providers' documentation (read 2026-11-04, not tested by me):
 - Local default is up to 50 sequences of up to 500 nt per request. Measured on
   an Intel i7 laptop: one 300 nt sequence takes about 0.4 s and one 500 nt
   sequence about 1.5-2 s (RNA, including the drawing). "Both" doubles the work.
+  On the Render free instance one 300 nt sequence with "Both" took about 5 s
+  (measured once), several times slower than the laptop, so the hosted limit is
+  200 nt.
 - `python app.py` uses Flask's development server on localhost only. For anything
   public use the Docker image (gunicorn). There is no rate limiting or
   authentication.

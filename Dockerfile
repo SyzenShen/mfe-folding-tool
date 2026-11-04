@@ -7,7 +7,7 @@ ENV HOME=/home/user \
     PATH=/home/user/.local/bin:$PATH \
     PYTHONUNBUFFERED=1 \
     MFE_MAX_SEQS=20 \
-    MFE_MAX_LEN=300
+    MFE_MAX_LEN=200
 WORKDIR $HOME/app
 
 COPY --chown=user requirements.txt .
