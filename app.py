@@ -7,6 +7,7 @@ details differ, so numbers will not match NUPACK exactly.
 Run:  .venv/bin/python app.py     ->  http://127.0.0.1:5050
 """
 import math
+import os
 import re
 import threading
 
@@ -19,8 +20,9 @@ app = Flask(__name__)
 # ViennaRNA loads energy parameters and plot settings globally, so serialize calls.
 _lock = threading.Lock()
 
-MAX_SEQS = 50
-MAX_LEN = 500
+# Request limits; hosted deployments lower these via environment variables.
+MAX_SEQS = int(os.environ.get("MFE_MAX_SEQS", "50"))
+MAX_LEN = int(os.environ.get("MFE_MAX_LEN", "500"))
 
 LAYOUTS = {
     "puzzler": ("Puzzler (default)", RNA.PLOT_TYPE_PUZZLER),
@@ -296,4 +298,5 @@ def index():
 
 
 if __name__ == "__main__":
+    # Local development only (localhost). Hosted deployments use gunicorn, see Dockerfile.
     app.run(host="127.0.0.1", port=5050)
