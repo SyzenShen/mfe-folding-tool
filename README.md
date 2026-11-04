@@ -4,11 +4,9 @@ A small local web app for practising nucleic acid secondary-structure prediction
 (minimum free energy, MFE) for DNA and RNA, e.g. for exercises like
 "fold 5 random 40-mers as DNA and RNA and compare free energy and paired bases".
 
-**This is not NUPACK.** It uses [ViennaRNA](https://www.tbi.univie.ac.at/RNA/)
-(Turner 2004 parameters for RNA, Mathews 2004 for DNA). Energy parameters and
-algorithm details differ from NUPACK, so free energies will not match NUPACK
-exactly. The difference has **not been quantified yet**. Use this for practice and
-cross-checking, and follow your course instructions for graded values.
+Single-strand MFE folding with [ViennaRNA](https://www.tbi.univie.ac.at/RNA/)
+(Turner 2004 parameters for RNA, Mathews 2004 for DNA). Free energies can differ
+from NUPACK's; this tool has not been compared against NUPACK output.
 
 **Live demo:** <https://mfe-folding-tool.onrender.com> (Render free instance: it
 sleeps after 15 minutes without traffic and the first request afterwards can take

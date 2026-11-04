@@ -1,8 +1,7 @@
 """Minimal MFE folding tool for teaching exercises.
 
 Engine: ViennaRNA (https://www.tbi.univie.ac.at/RNA/), Institute for Theoretical
-Chemistry, University of Vienna. NOT NUPACK: energy parameters and algorithm
-details differ, so numbers will not match NUPACK exactly.
+Chemistry, University of Vienna. Free energies can differ from NUPACK's.
 
 Run:  .venv/bin/python app.py     ->  http://127.0.0.1:5050
 """
@@ -23,6 +22,8 @@ _lock = threading.Lock()
 # Request limits; hosted deployments lower these via environment variables.
 MAX_SEQS = int(os.environ.get("MFE_MAX_SEQS", "50"))
 MAX_LEN = int(os.environ.get("MFE_MAX_LEN", "500"))
+
+VIENNA = RNA.__version__
 
 LAYOUTS = {
     "puzzler": ("Puzzler (default)", RNA.PLOT_TYPE_PUZZLER),
@@ -173,7 +174,7 @@ PAGE = """<!doctype html>
  select,input,button,textarea{font:inherit;color:inherit}
  select,input[type=text],input:not([type]){padding:.25rem .4rem;border:1px solid #aaa;border-radius:4px;background:#fff}
  code{font-family:var(--mono);font-size:.9em;background:#f3f3f3;padding:0 .25em;border-radius:3px}
- .warn{background:#fff4d6;border:1px solid #e0b84c;padding:.7rem 1rem;border-radius:6px}
+ .note{background:#f3f6fa;border:1px solid #d5dde8;padding:.6rem 1rem;border-radius:6px;color:#333}
  .err{background:#fde2e2;border:1px solid #d66;padding:.5rem 1rem;border-radius:6px;margin:.5rem 0}
  textarea{width:100%;height:9rem;font-family:var(--mono);font-size:.9rem;padding:.5rem;border:1px solid #aaa;border-radius:4px;box-sizing:border-box}
  table{border-collapse:collapse;width:100%;margin-top:1rem}
@@ -192,10 +193,8 @@ PAGE = """<!doctype html>
  .bar{width:160px;height:12px;border:1px solid #888;background:linear-gradient(90deg,#fff5d6,#2563b0)}
 </style></head><body>
 <h1>MFE folding tool</h1>
-<p class="warn"><b>This is not NUPACK.</b> It uses ViennaRNA
-(Turner 2004 for RNA, Mathews 2004 for DNA). Free energies will differ from
-NUPACK's, so use it for practice and cross-checking, and follow your course's
-instructions for graded values.</p>
+<p class="note">Single-strand MFE folding with ViennaRNA {{ vienna }}
+(Turner 2004 parameters for RNA, Mathews 2004 for DNA). Free energies can differ from NUPACK's.</p>
 <form method="post">
  <p><label>Material
   <select name="material">
@@ -299,7 +298,8 @@ def index():
         if rows:
             results = [(m, analyse(rows, m, temp, layout)) for m in mats]
     return render_template_string(PAGE, material=material, seqs=seqs, temp=temp_raw,
-                                  layout=layout, layouts=LAYOUTS, results=results, errors=errors)
+                                  layout=layout, layouts=LAYOUTS, results=results, errors=errors,
+                                  vienna=VIENNA)
 
 
 if __name__ == "__main__":
