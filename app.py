@@ -15,6 +15,8 @@ from flask import Flask, render_template_string, request
 from markupsafe import Markup
 
 app = Flask(__name__)
+# Reject oversized request bodies before parsing them (50 x 500 nt is only ~25 KB).
+app.config["MAX_CONTENT_LENGTH"] = 200 * 1024
 
 # ViennaRNA loads energy parameters and plot settings globally, so serialize calls.
 _lock = threading.Lock()
@@ -22,6 +24,7 @@ _lock = threading.Lock()
 # Request limits; hosted deployments lower these via environment variables.
 MAX_SEQS = int(os.environ.get("MFE_MAX_SEQS", "50"))
 MAX_LEN = int(os.environ.get("MFE_MAX_LEN", "500"))
+MAX_ERRORS = 10  # input problems listed before the rest are summarised
 
 VIENNA = RNA.__version__
 
@@ -134,7 +137,11 @@ def parse_input(text):
         seq = parts[-1].upper()
         name = " ".join(parts[:-1]) or f"Seq {len(rows) + 1}"
         if not re.fullmatch(r"[ACGTU]+", seq):
-            errors.append(f"Line {i}: only A, C, G, T, U allowed.")
+            if line.startswith(">"):
+                errors.append(f"Line {i}: FASTA headers are not supported; write 'name SEQUENCE' on one line.")
+            else:
+                bad = " ".join(sorted(set(re.sub(r"[ACGTU]", "", seq))))
+                errors.append(f"Line {i}: unexpected character(s) {bad} (only A, C, G, T, U allowed).")
             continue
         if len(seq) > MAX_LEN:
             errors.append(f"Line {i}: longer than {MAX_LEN} nt.")
@@ -143,6 +150,8 @@ def parse_input(text):
     if len(rows) > MAX_SEQS:
         errors.append(f"At most {MAX_SEQS} sequences per request.")
         rows = rows[:MAX_SEQS]
+    if len(errors) > MAX_ERRORS:
+        errors = errors[:MAX_ERRORS] + [f"... and {len(errors) - MAX_ERRORS} more problems."]
     return rows, errors
 
 
@@ -186,10 +195,10 @@ PAGE = """<!doctype html>
  small{color:#555}
  .figs{display:flex;flex-wrap:wrap;gap:1rem;margin-top:1rem}
  figure{margin:0;border:1px solid #ddd;border-radius:6px;padding:.4rem;text-align:center;width:min(100%,440px)}
- svg.fold{width:100%;height:auto;max-height:440px;cursor:grab;touch-action:none;background:#fff}
+ svg.fold{width:100%;height:auto;max-height:440px;cursor:grab;touch-action:pan-y pinch-zoom;background:#fff}
  svg.fold:active{cursor:grabbing}
  figcaption{font-size:.85rem;color:#444}
- .legend{display:flex;align-items:center;gap:.5rem;font-size:.85rem;margin-top:1rem}
+ .legend{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;font-size:.85rem;margin-top:1rem}
  .bar{width:160px;height:12px;border:1px solid #888;background:linear-gradient(90deg,#fff5d6,#2563b0)}
 </style></head><body>
 <h1>MFE folding tool</h1>
@@ -211,7 +220,7 @@ PAGE = """<!doctype html>
    {% endfor %}
   </select></label></p>
  <p>Sequences, one per line (<code>ACGU...</code> or <code>name ACGU...</code>). T and U are accepted either way.</p>
- <textarea name="seqs" spellcheck="false">{{ seqs }}</textarea>
+ <textarea name="seqs" spellcheck="false" placeholder="GGGGAAAACCCC&#10;hairpin2 GCGCGCAAAAGCGCGC">{{ seqs }}</textarea>
  <p><button>Fold</button></p>
 </form>
 {% for e in errors %}<div class="err">{{ e }}</div>{% endfor %}
@@ -271,6 +280,11 @@ document.querySelectorAll('svg.fold').forEach(function (svg) {
 });
 </script>
 </body></html>"""
+
+
+@app.errorhandler(413)
+def too_large(_):
+    return f"Input too large (limit {app.config['MAX_CONTENT_LENGTH'] // 1024} KB).", 413
 
 
 @app.route("/", methods=["GET", "POST"])

@@ -1,6 +1,6 @@
 # MFE folding tool
 
-A small local web app for practising nucleic acid secondary-structure prediction
+A small web app for practising nucleic acid secondary-structure prediction
 (minimum free energy, MFE) for DNA and RNA, e.g. for exercises like
 "fold 5 random 40-mers as DNA and RNA and compare free energy and paired bases".
 
@@ -9,15 +9,15 @@ Single-strand MFE folding with [ViennaRNA](https://www.tbi.univie.ac.at/RNA/)
 from NUPACK's; this tool has not been compared against NUPACK output.
 
 **Live demo:** <https://mfe-folding-tool.onrender.com> (Render free instance: it
-sleeps after 15 minutes without traffic and the first request afterwards can take
-about a minute; open it a little before you need it).
+sleeps after 15 minutes without traffic; Render's documentation says waking it takes
+about a minute (one wake-up measured here: about 13 s). Open it a little before you need it).
 
 ![Screenshot: two RNA sequences folded, with table and structure drawings](docs/screenshot.png)
 
 ## Features
 
 - Several sequences at once (one per line, optionally `name SEQUENCE`); DNA, RNA or both.
-- Temperature setting (default 37 °C).
+- Temperature setting (default 37 °C, range -10 to 100).
 - MFE structure (dot-bracket), ΔG in kcal/mol, number of base pairs, number of
   paired bases (2 x pairs), and averages over all sequences.
 - Structure drawings with three layouts (Puzzler, Circular, NAView), bases
@@ -26,7 +26,7 @@ about a minute; open it a little before you need it).
 
 ## Run
 
-Needs Python 3.8+.
+Tested with Python 3.10 (local) and 3.11 (Docker image).
 
 ```bash
 python3 -m venv .venv
@@ -63,8 +63,8 @@ non-Docker run.
 `render.yaml` is a Render Blueprint (Docker runtime, free plan, Frankfurt):
 in the Render dashboard choose *New > Blueprint* and select this repository.
 This is how the live demo above is deployed; the free plan accepted the Docker
-runtime and the first build took about a minute.
-Notes from the providers' documentation (read 2026-11-04, not tested by me):
+runtime.
+Notes from the providers' documentation (read 2026-11-04, not tested):
 
 - Hugging Face: Docker Spaces need a paid plan to create (PRO for personal
   accounts); free Spaces go to sleep when unused.
@@ -80,6 +80,7 @@ Notes from the providers' documentation (read 2026-11-04, not tested by me):
   On the Render free instance one 300 nt sequence with "Both" took about 5 s
   (measured once), several times slower than the laptop, so the hosted limit is
   200 nt.
+- Request bodies over 200 KB are rejected.
 - `python app.py` uses Flask's development server on localhost only. For anything
   public use the Docker image (gunicorn). There is no rate limiting or
   authentication.
@@ -87,7 +88,9 @@ Notes from the providers' documentation (read 2026-11-04, not tested by me):
 ## Credit and licence
 
 Folding and the partition function are computed with ViennaRNA, Institute for
-Theoretical Chemistry, University of Vienna. ViennaRNA's licence allows
+Theoretical Chemistry, University of Vienna. If you use results in a publication,
+cite: Lorenz R, Bernhart SH, Höner zu Siederdissen C, Tafer H, Flamm C, Stadler PF,
+Hofacker IL. ViennaRNA Package 2.0. Algorithms for Molecular Biology 6:26 (2011). ViennaRNA's licence allows
 research, educational and commercial use without a fee, provided credit is
 given; putting it into a commercial product requires contacting its authors.
 See the ViennaRNA package for the full text.

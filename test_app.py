@@ -54,3 +54,17 @@ assert r.data.count(b"<figure>") == 10 and b'class="fold"' in r.data
 r = c.post("/", data=dict(material="RNA", temp="37", seqs="GGGAAACCC", layout="evil"))
 assert r.status_code == 200 and r.data.count(b"<figure>") == 1
 print("DRAWINGS OK")
+
+# input handling
+_, e = parse_input("ACGX")
+assert len(e) == 1 and "X" in e[0], e
+_, e = parse_input(">seq1")
+assert len(e) == 1 and "FASTA" in e[0], e
+_, e = parse_input("\n".join(["x"] * 30))
+assert len(e) == 11 and "20 more" in e[-1], e          # 10 listed + summary line
+r = c.post("/", data=dict(material="RNA", temp="37", seqs="x" * (300 * 1024)))
+assert r.status_code == 413 and b"too large" in r.data   # oversized body rejected up front
+r = c.post("/", data=dict(material="RNA", temp="37", seqs="<b>x</b> GGGAAACCC"))
+assert b"<b>x</b>" not in r.data and b"&lt;b&gt;x&lt;/b&gt;" in r.data   # names are escaped
+assert b"placeholder=" in c.get("/").data
+print("INPUT OK")
